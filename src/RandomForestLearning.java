@@ -1,4 +1,4 @@
-//import java.util.HashMap;
+import java.util.HashMap;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -8,10 +8,18 @@ import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.mllib.linalg.Vectors;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.mllib.tree.configuration.Strategy;
+import org.apache.spark.mllib.tree.impurity.Gini;
+import org.apache.spark.mllib.tree.impurity.Impurity;
 import org.apache.spark.mllib.tree.model.RandomForestModel;
+import org.apache.spark.storage.StorageLevel;
 import org.apache.spark.mllib.tree.RandomForest;
+
+import scala.Predef;
 import scala.Tuple2;
-//import scala.collection.immutable.Map;
+import scala.collection.JavaConverters;
+import scala.collection.immutable.Map;
+import scala.collection.immutable.Map.Map1;
+
 
 public class RandomForestLearning {
 	public static void main(String[] args) {
@@ -23,7 +31,8 @@ public class RandomForestLearning {
 		 * 
 		 * We define an anonymous function "call" that returns a labeled point object
 		 * This function is mapped across all input files, ultimately creating an RDD of all the labelled data for every image*/
-		JavaRDD<LabeledPoint> training = sc.textFile(args[0]).cache().map(new Function<String, LabeledPoint>() {
+		JavaRDD<LabeledPoint> training = sc.textFile(args[0]).persist(
+				StorageLevel.MEMORY_ONLY_SER()).map(new Function<String, LabeledPoint>() {
 			
 			//I'm not entirely sure what this is for, but Eclipse complains with warnings if it's not here
 			// 1L seems to be the default value
@@ -46,7 +55,8 @@ public class RandomForestLearning {
 		});
 		
 		//This function is identical to the one above, but we are creating a test data RDD instead of a training data RDD
-		JavaRDD<LabeledPoint> test = sc.textFile(args[1]).cache().map(new Function<String, LabeledPoint>() {
+		JavaRDD<LabeledPoint> test = sc.textFile(args[1]).persist(
+				StorageLevel.MEMORY_ONLY_SER()).map(new Function<String, LabeledPoint>() {
 
 			private static final long serialVersionUID = 1L;
 
@@ -68,25 +78,26 @@ public class RandomForestLearning {
 		
 		//Most of these values were used for the commented out call to RandomForest.trainClassifier below. I was receiving an
 		//error saying that I can't cast a HashMap to an immutable Map, so I am trying a different method until I can resolve the issue
-//		int numClasses = 10;
+		int numClasses = 10;
 		int numTrees = 10;
 		String featureSubsetStrategy = "auto";
-//		String impurity = "entropy";
-//		int maxDepth = 20;
-//		int maxBins = 34;
+		String impurity = "gini";
+		int maxDepth = 20;
+		int maxBins = 34;
 		int seed = 12345;
-//		HashMap<Integer, Integer> categoricalFeaturesInfo = new HashMap<>();
-		
+		HashMap<Object, Object> categoricalFeaturesInfo = new HashMap<>();
+		Map <Object, Object> myMap = toScalaMap(categoricalFeaturesInfo);
+//		scala.collection.immutable.Map<Object,Object> categoricalFeaturesInfo = new scala.collection.immutable.Map.Map1(1, 1);
 		//Create a Random Forest model
-		final RandomForestModel model =
-		RandomForest.trainClassifier(training.rdd(),
-		Strategy.defaultStrategy("Classification"), numTrees,
-		featureSubsetStrategy, seed);
+//		final RandomForestModel model =
+//		RandomForest.trainClassifier(training.rdd(),
+//		Strategy.defaultStrategy("Classification"), numTrees,
+//		featureSubsetStrategy, seed);
 		 
 		 
-//		final RandomForestModel model = RandomForest.trainClassifier(training.rdd(), numClasses,
-//				(Map<Object, Object>) categoricalFeaturesInfo, numTrees, featureSubsetStrategy, impurity, maxDepth,
-//				maxBins, seed);
+		final RandomForestModel model = RandomForest.trainClassifier(training.rdd(), numClasses,
+				myMap, numTrees, featureSubsetStrategy, impurity, maxDepth,
+				maxBins, seed);
 		
 		//This function creates an RDD of pairs in which the first value is the predicted class for an image, 
 		// and the second value is the actual class of that image
@@ -100,8 +111,12 @@ public class RandomForestLearning {
 					}
 				});
 		
-		//Write the RDD to file in HDFS (This may not work, my code is failing due to out of memory errors before it can get to this point)
-		predictionAndLabel.coalesce(1).saveAsObjectFile("hdfs://denver:43401/output");
+		predictionAndLabel.coalesce(1).saveAsTextFile("hdfs://denver:43401/output");
 		sc.close();
 	}
+	public static <A, B> Map<A, B> toScalaMap(HashMap<A, B> m) {
+	    return JavaConverters.mapAsScalaMapConverter(m).asScala().toMap(
+	      Predef.<Tuple2<A, B>>conforms()
+	    );
+	  }
 }
