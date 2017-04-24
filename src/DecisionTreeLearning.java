@@ -6,6 +6,7 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
 import org.apache.spark.api.java.function.PairFunction;
+import org.apache.spark.mllib.linalg.Vectors;
 import org.apache.spark.mllib.regression.LabeledPoint;
 import org.apache.spark.mllib.tree.DecisionTree;
 import org.apache.spark.storage.StorageLevel;
@@ -25,9 +26,17 @@ public class DecisionTreeLearning {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public LabeledPoint call(String arg0) throws Exception {
-				// TODO Auto-generated method stub
-				return null;
+			public LabeledPoint call(String v1) throws Exception {
+				double label = Double.parseDouble(v1.substring(0, v1.indexOf(",")));
+				String[] featureString = v1.split(",")[2].split(" ");
+				double[] v = new double[featureString.length];
+				int i = 0;
+				for (String s : featureString) {
+					if (s.trim().equals(""))
+						continue;
+					v[i++] = Double.parseDouble(s.trim());
+				}
+				return new LabeledPoint(label, Vectors.dense(v));
 			}
 		});
 		
@@ -37,9 +46,17 @@ public class DecisionTreeLearning {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public LabeledPoint call(String arg0) throws Exception {
-				// TODO Auto-generated method stub
-				return null;
+			public LabeledPoint call(String v1) throws Exception {
+				double label = Double.parseDouble(v1.substring(0, v1.indexOf(",")));
+				String[] featureString = v1.split(",")[2].split(" ");
+				double[] v = new double[featureString.length];
+				int i = 0;
+				for (String s : featureString) {
+					if (s.trim().equals(""))
+						continue;
+					v[i++] = Double.parseDouble(s.trim());
+				}
+				return new LabeledPoint(label, Vectors.dense(v));
 			}
 		});
 		
