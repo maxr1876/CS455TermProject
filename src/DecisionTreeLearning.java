@@ -40,7 +40,7 @@ public class DecisionTreeLearning {
 			}
 		});
 		
-		JavaRDD<LabeledPoint> test = sc.textFile(args[0]).persist(
+		JavaRDD<LabeledPoint> test = sc.textFile(args[1]).persist(
 				StorageLevel.MEMORY_ONLY_SER()).map(new Function<String, LabeledPoint>() {
 					
 			private static final long serialVersionUID = 1L;
@@ -60,7 +60,7 @@ public class DecisionTreeLearning {
 			}
 		});
 		
-		Integer numClasses = 2;
+		Integer numClasses = 10;
 		HashMap<Object, Object> categoricalFeaturesInfo = new HashMap<>();
 		Map <Object, Object> myMap = RandomForestLearning.toScalaMap(categoricalFeaturesInfo);
 		String impurity = "gini";
