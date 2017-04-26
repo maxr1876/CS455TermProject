@@ -79,10 +79,10 @@ public class RandomForestLearning {
 		//Most of these values were used for the commented out call to RandomForest.trainClassifier below. I was receiving an
 		//error saying that I can't cast a HashMap to an immutable Map, so I am trying a different method until I can resolve the issue
 		int numClasses = 10;
-		int numTrees = 10;
+		int numTrees = 100;
 		String featureSubsetStrategy = "auto";
 		String impurity = "gini";
-		int maxDepth = 20;
+		int maxDepth = 30;
 		int maxBins = 34;
 		int seed = 12345;
 		HashMap<Object, Object> categoricalFeaturesInfo = new HashMap<>();
@@ -111,7 +111,7 @@ public class RandomForestLearning {
 					}
 				});
 		
-		predictionAndLabel.coalesce(1).saveAsTextFile("hdfs://denver:43401/output");
+		predictionAndLabel.coalesce(1).saveAsTextFile("hdfs://denver:43401/output/"+new Random().nextInt(10000000));
 		sc.close();
 	}
 	public static <A, B> Map<A, B> toScalaMap(HashMap<A, B> m) {
