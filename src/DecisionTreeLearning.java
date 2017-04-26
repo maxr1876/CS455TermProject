@@ -80,7 +80,7 @@ public class DecisionTreeLearning {
 			  	}
 			});				
 		
-		predictionAndLabel.coalesce(1).saveAsTextFile("hdfs://denver:43401/output");
+		predictionAndLabel.coalesce(1).saveAsTextFile("hdfs://denver:43401/RFOutput/"+new Random().nextInt(1000000000));
 		sc.close();
 	}
 }
