@@ -1,7 +1,7 @@
-
+import sys
 totLines = 0.0
 numCorrect = 0.0
-for line in open("results", "r"):
+for line in open(sys.argv[1], "r"):
 	line = line.replace("(", "")
 	line = line.replace(")", "")
 	line = line.replace(" ", "")
@@ -10,4 +10,4 @@ for line in open("results", "r"):
 		numCorrect = numCorrect + 1
 
 percent = numCorrect/totLines
-print numCorrect/totLines
+print "Accuracy of predictions: " + str(numCorrect/totLines)
