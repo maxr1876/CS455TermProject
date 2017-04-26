@@ -82,7 +82,7 @@ public class NaiveBayesLearning {
     			}
   		});
 		// Namenode to save at
-		predictionAndLabel.coalesce(1).saveAsTextFile("hdfs://madison.cs.colostate.edu:20000/output");
+		predictionAndLabel.coalesce(1).saveAsTextFile("hdfs://denver:43401/NBOutput/"+new Random().nextInt(1000000000));
 
 		sc.close();
 	}
