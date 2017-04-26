@@ -82,7 +82,7 @@ public class LogisticRegressionLearning {
 		double accuracy = metrics.accuracy();
 		System.out.println("Accuracy = " + accuracy);
 				
-		predictionAndLabels.coalesce(1).saveAsTextFile("hdfs://nashville.cs.colostate.edu:30101/output");
+		predictionAndLabels.coalesce(1).saveAsTextFile("hdfs://denver:43401/LROutput/"+new Random().nextInt(1000000000));
 		sc.close();
 	}
 }
